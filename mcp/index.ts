@@ -1,23 +1,32 @@
-import * as example from "./tools/example";
+// mcp/index.ts
 
-type Request = {
-  method: string;
-  params?: any;
-};
+import * as github from "./tools/github";
+import { createInterface } from "readline";
 
-process.stdin.on("data", async (chunk) => {
-  const { method, params }: Request = JSON.parse(chunk.toString());
-  let result = null;
+const args = process.argv.slice(2);
 
+// ✅ CLI args → 환경변수 주입
+for (const arg of args) {
+  const [key, value] = arg.split("=");
+  if (key && value) process.env[key] = value;
+}
+
+// ✅ MCP 요청 처리
+const rl = createInterface({ input: process.stdin, output: process.stdout });
+
+rl.on("line", async (line) => {
   try {
-    if (method === "tools/getTime") {
-      result = await example.getTime();
-    } else {
-      throw new Error(`Unknown method: ${method}`);
+    const { method, params } = JSON.parse(line);
+
+    let result = null;
+
+    if (method === "github/findOrCreatePr") {
+      result = await github.findOrCreatePr(params);
     }
 
     process.stdout.write(JSON.stringify({ result }) + "\n");
   } catch (err: any) {
+    console.error("[MCP Error]", err);
     process.stderr.write(JSON.stringify({ error: err.message }) + "\n");
   }
 });

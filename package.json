@@ -1,31 +1,22 @@
 {
   "name": "devflow-mcp",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
-  "bin": {
-    "devflow-mcp": "./dist/index.js"
-  },
+  "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^latest",
+    "@types/node": "^22.15.21",
     "ts-node": "^10.9.2",
-    "typescript": "^latest"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@octokit/rest": "^latest",
-    "dotenv": "^latest",
-    "openai": "^latest"
-  },
-  "files": [
-    "dist",
-    "tool-definition.json"
-  ]
+    "@octokit/rest": "^21.1.1",
+    "dotenv": "^16.5.0",
+    "openai": "^4.103.0"
+  }
 }

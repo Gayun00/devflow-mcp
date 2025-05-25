@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // mcp/index.ts
 
 import * as github from "./tools/github";

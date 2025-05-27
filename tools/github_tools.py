@@ -123,10 +123,10 @@ def find_or_create_pr(issue_id: str, base: str = "main"):
     )
     return {"status": "CREATED", "url": pr.html_url}
 
-# 테스트 코드 추가
-if __name__ == "__main__":
-    try:
-        result = find_or_create_pr("TEST-123", "dev")
-        print("PR 생성/업데이트 결과:", result)
-    except Exception as e:
-        print("에러 발생:", str(e))
+# 테스트 코드 
+# if __name__ == "__main__":
+#     try:
+#         result = find_or_create_pr("TEST-123", "dev")
+#         print("PR 생성/업데이트 결과:", result)
+#     except Exception as e:
+#         print("에러 발생:", str(e))

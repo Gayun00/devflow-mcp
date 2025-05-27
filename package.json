@@ -18,6 +18,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
     "@octokit/rest": "^21.1.1",
     "dotenv": "^16.5.0",
     "openai": "^4.103.0"

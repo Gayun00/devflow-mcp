@@ -93,12 +93,22 @@ export async function findOrCreatePr({
   const { stdout: diff } = await execAsync(`git diff origin/${base}...HEAD`);
   const summary = await summarizeDiff(diff);
 
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  const HH = String(now.getHours()).padStart(2, "0");
+  const MM = String(now.getMinutes()).padStart(2, "0");
+  const SS = String(now.getSeconds()).padStart(2, "0");
+
+  const formatted = `${yyyy}.${mm}-${dd} ${HH}:${MM}:${SS}`;
+
   const devflowSection = [
     "<!-- devflow-mcp-start -->",
     `## 🛠 devflow-mcp 업데이트`,
     `- 관련 이슈: ${issueId}`,
     `- 병합 대상 브랜치: ${base}`,
-    `- 업데이트 시간: ${new Date().toISOString()}`,
+    `- 업데이트 시간: ${formatted}`,
     "",
     `## 작업 요약`,
     summary,

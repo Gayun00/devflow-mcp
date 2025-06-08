@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 import sys
 from pathlib import Path
 import subprocess
-from prompt import prompt
-from jira_tools import get_jira_issue_description
-from slack_tools import get_slack_message_text
+from tools.prompt import prompt
+from tools.jira_tools import get_jira_issue_description
+from tools.slack_tools import get_slack_message_text
   
 load_dotenv()
 
@@ -52,7 +52,11 @@ def find_or_create_pr(issue_id: str, base: str = "main"):
     repo = g.get_repo(GITHUB_REPO)
     GIT_DIRECTORY_PATH = find_git_root(Path(sys.argv[0]))
 
+
+
     branch = run_cmd("git rev-parse --abbrev-ref HEAD", cwd=GIT_DIRECTORY_PATH)
+
+    
 
     ls_remote = run_cmd(f"git ls-remote --heads origin {branch}", cwd=GIT_DIRECTORY_PATH)
     if branch not in ls_remote:
@@ -87,6 +91,7 @@ def find_or_create_pr(issue_id: str, base: str = "main"):
 
     title = f"{issue_id}: WIP"
 
+
     pulls = repo.get_pulls(state="open", head=f"{repo.owner.login}:{branch}", base=base)
     pulls = list(pulls)
     if pulls:
@@ -113,9 +118,9 @@ def find_or_create_pr(issue_id: str, base: str = "main"):
     return {"status": "CREATED", "url": pr.html_url}
 
 # 테스트 코드 
-if __name__ == "__main__":
-    try:
-        result = find_or_create_pr("US-22309")
-        print("PR 생성/업데이트 결과:", result)
-    except Exception as e:
-        print("에러 발생:", str(e))
+# if __name__ == "__main__":
+#     try:
+#         result = find_or_create_pr("US-22309")
+#         print("PR 생성/업데이트 결과:", result)
+#     except Exception as e:
+#         print("에러 발생:", str(e))

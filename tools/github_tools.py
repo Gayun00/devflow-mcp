@@ -31,7 +31,7 @@ def summarize_diff(diff: str) -> str:
     completion = openai.chat.completions.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant who summarizes Git diffs for pull requests."},
+            {"role": "system", "content": "당신은 프론트엔드 개발자입니다. 팀원을 위해 주요 변경사항을 PR에 작성합니다."},
             {"role": "user", "content": prompt(diff)},
         ],
     )

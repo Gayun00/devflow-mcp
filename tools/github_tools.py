@@ -4,7 +4,11 @@ from datetime import datetime
 from github import Github
 from openai import OpenAI
 from dotenv import load_dotenv
+import sys
+from pathlib import Path
+import subprocess
 
+  
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -48,11 +52,14 @@ def prompt(diff: str) -> str:
 🔧 자동으로 생성된 내용입니다.
 """
 
-def run_cmd(cmd: str) -> str:
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+def run_cmd(cmd: str, cwd: Path = None) -> str:
+    result = subprocess.run(
+        cmd, shell=True, capture_output=True, text=True, cwd=str(cwd) if cwd else None
+    )
     if result.returncode != 0:
         raise RuntimeError(f"Command failed: {cmd}\n{result.stderr}")
     return result.stdout.strip()
+
 
 def summarize_diff(diff: str) -> str:
     completion = openai.chat.completions.create(
@@ -64,19 +71,31 @@ def summarize_diff(diff: str) -> str:
     )
     return completion.choices[0].message.content or "(요약 실패)"
 
+def find_git_root(start_dir: Path) -> Path:
+    current = start_dir.resolve()
+    for parent in [current] + list(current.parents):
+        if (parent / ".git").exists():
+            return parent
+    raise RuntimeError("❌ .git 디렉토리를 찾을 수 없습니다.")
+
+
 def find_or_create_pr(issue_id: str, base: str = "main"):
     g = Github(GITHUB_TOKEN)
     repo = g.get_repo(GITHUB_REPO)
+    GIT_DIRECTORY_PATH = find_git_root(Path(sys.argv[0]))
 
-    branch = run_cmd("git rev-parse --abbrev-ref HEAD")
-    ls_remote = run_cmd(f"git ls-remote --heads origin {branch}")
+    branch = run_cmd("git rev-parse --abbrev-ref HEAD", cwd=GIT_DIRECTORY_PATH)
+
+    ls_remote = run_cmd(f"git ls-remote --heads origin {branch}", cwd=GIT_DIRECTORY_PATH)
     if branch not in ls_remote:
         return {
             "status": "BRANCH_NOT_FOUND",
             "message": f"❗ 원격 저장소에 브랜치 '{branch}'가 없습니다. 먼저 push 해주세요: git push origin HEAD:{branch}",
         }
 
-    diff = run_cmd(f"git diff origin/{base}...HEAD")
+    diff = run_cmd(f"git diff origin/{base}...HEAD", cwd=GIT_DIRECTORY_PATH)
+
+
     summary = summarize_diff(diff)
 
     now = datetime.now()

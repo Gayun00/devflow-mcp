@@ -7,7 +7,9 @@ from dotenv import load_dotenv
 import sys
 from pathlib import Path
 import subprocess
-from tools.prompt import prompt
+from prompt import prompt
+from jira_tools import get_jira_issue_description
+from slack_tools import get_slack_message_text
   
 load_dotenv()
 
@@ -27,12 +29,12 @@ def run_cmd(cmd: str, cwd: Path = None) -> str:
     return result.stdout.strip()
 
 
-def summarize_diff(diff: str) -> str:
+def summarize_diff(diff: str, slack_messages: list[str], jira_description: str) -> str:
     completion = openai.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "당신은 프론트엔드 개발자입니다. 팀원을 위해 주요 변경사항을 PR에 작성합니다."},
-            {"role": "user", "content": prompt(diff)},
+            {"role": "user", "content": prompt(diff, slack_messages, jira_description)},
         ],
     )
     return completion.choices[0].message.content or "(요약 실패)"
@@ -62,7 +64,9 @@ def find_or_create_pr(issue_id: str, base: str = "main"):
     diff = run_cmd(f"git diff origin/{base}...HEAD", cwd=GIT_DIRECTORY_PATH)
 
 
-    summary = summarize_diff(diff)
+    jira_description ,slack_link = get_jira_issue_description(issue_id)
+    slack_messages = get_slack_message_text(slack_link)
+    summary = summarize_diff(diff, slack_messages, jira_description)
 
     now = datetime.now()
     formatted = now.strftime("%Y.%m-%d %H:%M:%S")
@@ -109,9 +113,9 @@ def find_or_create_pr(issue_id: str, base: str = "main"):
     return {"status": "CREATED", "url": pr.html_url}
 
 # 테스트 코드 
-# if __name__ == "__main__":
-#     try:
-#         result = find_or_create_pr("TEST-123", "dev")
-#         print("PR 생성/업데이트 결과:", result)
-#     except Exception as e:
-#         print("에러 발생:", str(e))
+if __name__ == "__main__":
+    try:
+        result = find_or_create_pr("US-22309")
+        print("PR 생성/업데이트 결과:", result)
+    except Exception as e:
+        print("에러 발생:", str(e))

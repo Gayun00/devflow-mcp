@@ -1,4 +1,5 @@
-def prompt(diff: str) -> str:
+def prompt(diff: str, slack_messages: list[str], jira_description: str) -> str:
+    slack_part = "\n".join(f"- {m}" for m in slack_messages)
     return f"""
 다음은 Git 코드 변경사항입니다:\n\n{diff}\n
 
@@ -20,8 +21,8 @@ def prompt(diff: str) -> str:
 - (이 PR의 전체적인 작업 목적을 간단히 서술)
 
 ## 🧩 변경 요약
-- (어떤 문제가 있었는지 한 줄)
-- (그 문제를 어떻게 해결했는지 한 줄)
+- (어떤 문제가 있었는지 한 줄) {slack_part}에서 문제 현상이 적혀있다면 이 것을 참고해 요약
+- (그 문제를 어떻게 해결했는지 한 줄) {jira_description}에서 필요한 작업내용이 적혀있다면 이것을 참고해 요약
 
 ## 📝 참고 사항
 - (리뷰나 QA 시 주의할 점이나 추가 맥락 한 줄)
